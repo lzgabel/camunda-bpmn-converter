@@ -1,0 +1,19 @@
+{
+    "code": "200",
+    "msg": "success",
+    "data": {
+        "process":{
+            "processId":"work-flow-id",
+            "name":"自动生成"
+        },
+        "directorMaxLevel": 4,
+        "flowPermission": [],
+        "processNode": {
+            "id": "start",
+            "nodeName": "发起人",
+            "type": 0,
+            "nextNode": null,
+            "branchNodes": []
+        }
+    }
+}
