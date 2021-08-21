@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.lzgabel</groupId>
-    <artifactId>camunda-bpmn-generate</artifactId>
+    <artifactId>camunda-bpmn-converter</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
 
@@ -13,9 +13,9 @@
         <version>2.1.13.RELEASE</version>
     </parent>
 
-    <name>camunda-bpmn-generate</name>
+    <name>camunda-bpmn-converter</name>
 
-    <description>Camunda generate bpmn demo project for Spring Boot</description>
+    <description>Camunda BPMN Converter is a tool to convert JSON file format to BPMN file format</description>
 
     <properties>
         <java.version>1.8</java.version>
@@ -107,7 +107,7 @@
                 </includes>
             </resource>
         </resources>
-        <finalName>camunda-bpmn-generate</finalName>
+        <finalName>camunda-bpmn-converter</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
