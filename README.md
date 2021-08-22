@@ -3,7 +3,7 @@
 
 <h1>Camunda BPMN Converter </h1>
 <p>
-Camunda BPMN Converter is a tool to convert JSON file format to BPMN file format
+Camunda-BPMN-Converter is a JSON to BPMN converter for camunda.
 </p>
 </div>
 
