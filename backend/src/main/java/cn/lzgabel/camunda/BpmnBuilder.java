@@ -313,12 +313,12 @@ public class BpmnBuilder {
     /**
      * 并行事件
      */
-    PARALLEL("parallel", ParallelGateway.class),
+    PARALLEL("parallelGateway", ParallelGateway.class),
 
     /**
      * 排他事件
      */
-    EXCLUSIVE("exclusive", ExclusiveGateway.class),
+    EXCLUSIVE("exclusiveGateway", ExclusiveGateway.class),
 
     /**
      * 任务
