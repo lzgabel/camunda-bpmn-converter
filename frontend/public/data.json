@@ -1,0 +1,18 @@
+{
+    "code": "200",
+    "msg": "success",
+    "data": {
+        "process":{
+            "processId":"process-id",
+            "name":"自动生成"
+        },
+        "processNode": {
+            "id": "start",
+            "nodeType": "start",
+            "nodeName": "发起人",
+            "type": 0,
+            "nextNode": null,
+            "branchNodes": []
+        }
+    }
+}

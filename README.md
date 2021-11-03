@@ -3,7 +3,7 @@
 
 <h1>Camunda BPMN Converter </h1>
 <p>
-Camunda-BPMN-Converter is a JSON to BPMN converter for camunda.
+Convert json to bpmn for Camunda Platform.
 </p>
 </div>
 
@@ -11,9 +11,9 @@ Camunda-BPMN-Converter is a JSON to BPMN converter for camunda.
 ### 1. 节点类型（nodeType)
 - serviceTask
     - service 任务节点
-- parallel
+- parallelGateway
     - 并行节点
-- exclusive
+- exclusiveGateway
     - 排他节点
 
 ### 2. 数据结构
@@ -27,16 +27,16 @@ Camunda-BPMN-Converter is a JSON to BPMN converter for camunda.
 }
 ```
 
-> 对于 parallel/exclusive 类型，目前建议设置 nextNode 的 nodeType 类型一一对应
+> 对于 parallelGateway/exclusiveGateway 类型，目前建议设置 nextNode 的 nodeType 类型一一对应
 
 - exclusive
 ```json
 {
     "nodeName":"排他",
-    "nodeType":"exclusive",
+    "nodeType":"exclusiveGateway",
     "nextNode":{
         "nodeName":"",
-        "nodeType":"exclusive",
+        "nodeType":"exclusiveGateway",
         "nextNode":null
     },
     "branchNodes":[
@@ -67,10 +67,10 @@ Camunda-BPMN-Converter is a JSON to BPMN converter for camunda.
 ```json
 {
     "nodeName":"并行任务",
-    "nodeType":"parallel",
+    "nodeType":"parallelGateway",
     "nextNode":{
         "nodeName":"",
-        "nodeType":"parallel",
+        "nodeType":"parallelGateway",
         "nextNode":null
     },
     "branchNodes":[
@@ -116,10 +116,10 @@ Camunda-BPMN-Converter is a JSON to BPMN converter for camunda.
         },
         "nextNode":{
             "nodeName":"排他",
-            "nodeType":"exclusive",
+            "nodeType":"exclusiveGateway",
             "nextNode":{
                 "nodeName":"排他网关",
-                "nodeType":"exclusive",
+                "nodeType":"exclusiveGateway",
                 "nextNode":null
             },
             "branchNodes":[
