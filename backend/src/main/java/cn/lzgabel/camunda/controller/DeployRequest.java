@@ -1,18 +1,26 @@
 package cn.lzgabel.camunda.controller;
 
+import cn.lzgabel.camunda.bean.BaseDefinition;
+import cn.lzgabel.camunda.bean.Process;
+import com.alibaba.fastjson.JSON;
 import lombok.Data;
 
 /**
  * 〈功能简述〉<br>
- * 〈〉
+ * 〈process流程定义〉
  *
  * @author lizhi
- * @date 2021-08-21
  * @since 1.0.0
  */
-
 @Data
 public class DeployRequest {
 
-    private String json;
+    private Process process;
+
+    private BaseDefinition processNode;
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
+    }
 }

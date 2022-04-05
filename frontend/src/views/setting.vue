@@ -152,11 +152,13 @@ export default {
 			// this.processConfig.flowPermission = this.flowPermission
 
 			var workflow = JSON.parse(JSON.stringify(this.processConfig));
-
 			workflow.processNode = replace(workflow.processNode.nextNode);
-			console.log(JSON.stringify(this.processConfig))
-			var data = {"json": JSON.stringify(workflow)};
-			this.$axios.post("http://localhost:8080/deploy", data).then(function(res){
+			this.$axios.post("http://localhost:8080/deploy", JSON.stringify(workflow),
+          {
+            headers: {
+              'content-type': 'application/json',
+            }
+          }).then(function(res){
 				ElementUI.Message({
 					message: '部署成功',
 					type: 'success'

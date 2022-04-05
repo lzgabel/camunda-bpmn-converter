@@ -63,7 +63,7 @@
         <dependency>
             <groupId>cn.lzgabel.layouter</groupId>
             <artifactId>bpmn-auto-layout</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.4</version>
         </dependency>
 
     </dependencies>

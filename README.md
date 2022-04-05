@@ -11,6 +11,8 @@ Convert json to bpmn for Camunda Platform.
 ### 1. 节点类型（nodeType)
 - serviceTask
     - service 任务节点
+- userTask
+  - userTask 任务节点
 - parallelGateway
     - 并行节点
 - exclusiveGateway
@@ -23,6 +25,18 @@ Convert json to bpmn for Camunda Platform.
 {
     "nodeName":"审核人1",
     "nodeType":"serviceTask",
+    "nextNode": null
+}
+```
+
+- userTask
+```json
+{
+    "nodeName":"审核人1",
+    "nodeType":"userTask",
+    "assignee": "aaa",
+    "candidateUsers": "bbb,ccc",
+    "candidateGroups": "bbb,ddd",
     "nextNode": null
 }
 ```
@@ -128,7 +142,9 @@ Convert json to bpmn for Camunda Platform.
                     "conditionExpression":"=id>1",
                     "nextNode":{
                         "nodeName":"审核人2.1",
-                        "nodeType":"serviceTask",
+                        "nodeType":"userTask",
+                        "assignee": "aaa",
+                        "candidateGroups": "bbb",
                         "nextNode":null
                     }
                 },

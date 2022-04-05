@@ -33,7 +33,7 @@ public class WorkflowController {
     @CrossOrigin
     public byte[] deploy(@RequestBody DeployRequest request) {
 
-        BpmnModelInstance modelInstance = BpmnBuilder.build(request.getJson());
+        BpmnModelInstance modelInstance = BpmnBuilder.build(request.toString(), false);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Bpmn.writeModelToStream(outputStream, modelInstance);
         return outputStream.toByteArray();

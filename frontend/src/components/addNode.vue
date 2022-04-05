@@ -72,7 +72,8 @@ export default {
                         "nodeName": "审核人",
                         "jobType": "user-"+id,
                         "type": 1,
-                        "nodeType": "serviceTask",
+                        "assignee": "user-"+id,
+                        "nodeType": "userTask",
                         "nextNode": this.nextNodeP
                     }
                 } else if (type == 2) {

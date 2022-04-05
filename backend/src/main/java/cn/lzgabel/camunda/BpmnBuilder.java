@@ -2,8 +2,10 @@
 package cn.lzgabel.camunda;
 
 import cn.lzgabel.BpmnAutoLayout;
+import cn.lzgabel.camunda.bean.NodeType;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
@@ -69,11 +71,16 @@ public class BpmnBuilder {
 
   private static String create(AbstractFlowNodeBuilder startFlowNodeBuilder, String fromId, JSONObject flowNode) throws InvocationTargetException, IllegalAccessException {
     String nodeType = flowNode.getString("nodeType");
-    if (Type.PARALLEL.isEqual(nodeType)) {
+    if (NodeType.PARALLEL_GATEWAY.isEqual(nodeType)) {
       return createParallelGatewayBuilder(startFlowNodeBuilder, flowNode);
-    } else if (Type.EXCLUSIVE.isEqual(nodeType)) {
+    } else if (NodeType.EXCLUSIVE_GATEWAY.isEqual(nodeType)) {
       return createExclusiveGatewayBuilder(startFlowNodeBuilder, flowNode);
-    } else if (Type.SERVICE_TASK.isEqual(nodeType)) {
+    } else if (NodeType.USER_TASK.isEqual(nodeType)) {
+      flowNode.put("incoming", Collections.singletonList(fromId));
+      return createUserTask(startFlowNodeBuilder, flowNode);
+    } else if (NodeType.SUB_PROCESS.isEqual(nodeType)) {
+      return createSubProcess(startFlowNodeBuilder, flowNode);
+    }  else if (NodeType.SERVICE_TASK.isEqual(nodeType)) {
       flowNode.put("incoming", Collections.singletonList(fromId));
       String id = createTask(startFlowNodeBuilder, flowNode);
 
@@ -254,6 +261,85 @@ public class BpmnBuilder {
     return parallelGatewayBuilder.getElement().getId();
   }
 
+  private static String createUserTask(AbstractFlowNodeBuilder startFlowNodeBuilder, JSONObject flowNode) throws InvocationTargetException, IllegalAccessException {
+    Map<String, AbstractFlowNodeBuilder> map = Maps.newHashMap();
+    String nodeType = flowNode.getString("nodeType");
+    String nodeName = flowNode.getString("nodeName");
+    String assignee = flowNode.getString("assignee");
+    String candidateUsers = flowNode.getString("candidateUsers");
+    String candidateGroups = flowNode.getString("candidateGroups");
+    List<String> incoming = flowNode.getJSONArray("incoming").toJavaList(String.class);
+    String id = null;
+    if (incoming != null && !incoming.isEmpty()) {
+      // 创建 ReceiveTask
+      AbstractFlowNodeBuilder<?, ?> abstractFlowNodeBuilder = moveToNode(startFlowNodeBuilder, incoming.get(0));
+      // 自动生成id
+      Method createTarget = getDeclaredMethod(abstractFlowNodeBuilder, "createTarget", Class.class);
+      createTarget.setAccessible(true);
+      Object target = createTarget.invoke(abstractFlowNodeBuilder, NodeType.TYPE_CLASS_MAP.get(nodeType));
+
+      if (target instanceof UserTask) {
+        UserTask userTask = (UserTask) target;
+        userTask.getId();
+        userTask.setName(nodeName);
+        // set assignee and candidateGroups
+        UserTaskBuilder userTaskBuilder = userTask.builder();
+        if (StringUtils.isNotBlank(assignee)) {
+          userTaskBuilder.camundaAssignee(assignee);
+        }
+
+        if (StringUtils.isNotBlank(candidateUsers)) {
+          userTaskBuilder.camundaCandidateUsers(candidateUsers);
+        }
+
+        if (StringUtils.isNotBlank(candidateGroups)) {
+            userTaskBuilder.camundaCandidateGroups(candidateGroups);
+        }
+
+        id = userTask.getId();
+      }
+      // 连接所有入度节点
+      for (int i = 1; i < incoming.size(); i++) {
+        abstractFlowNodeBuilder = moveToNode(startFlowNodeBuilder, incoming.get(i));
+        abstractFlowNodeBuilder.connectTo(id);
+      }
+    }
+
+    // 如果当前任务还有后续任务，则遍历创建后续任务
+    JSONObject nextNode = flowNode.getJSONObject("nextNode");
+    if (Objects.nonNull(nextNode)) {
+      AbstractFlowNodeBuilder<?, ?> abstractFlowNodeBuilder = moveToNode(startFlowNodeBuilder, id);
+      return create(abstractFlowNodeBuilder, id, nextNode);
+    } else {
+      return id;
+    }
+  }
+
+  private static String createSubProcess(AbstractFlowNodeBuilder startFlowNodeBuilder, JSONObject flowNode) throws InvocationTargetException, IllegalAccessException {
+    SubProcessBuilder subProcessBuilder = startFlowNodeBuilder.subProcess();
+    EmbeddedSubProcessBuilder embeddedSubProcessBuilder = subProcessBuilder.embeddedSubProcess();
+    StartEventBuilder startEventBuilder = embeddedSubProcessBuilder.startEvent();
+    subProcessBuilder.getElement().setName(flowNode.getString("nodeName"));
+    // 遍历创建子任务
+    JSONObject childNode = flowNode.getJSONObject("childNode");
+    String lastNode = startEventBuilder.getElement().getId();
+    if (Objects.nonNull(childNode)) {
+      AbstractFlowNodeBuilder<?, ?> abstractFlowNodeBuilder = moveToNode(subProcessBuilder, startEventBuilder.getElement().getId());
+      lastNode = create(abstractFlowNodeBuilder, startEventBuilder.getElement().getId(), childNode);
+    }
+    moveToNode(startEventBuilder, lastNode).endEvent();
+
+    // 如果当前任务还有后续任务，则遍历创建后续任务
+    String id = subProcessBuilder.getElement().getId();
+    JSONObject nextNode = flowNode.getJSONObject("nextNode");
+    if (Objects.nonNull(nextNode)) {
+      AbstractFlowNodeBuilder<?, ?> abstractFlowNodeBuilder = moveToNode(subProcessBuilder, id);
+      return create(abstractFlowNodeBuilder, id, nextNode);
+    }
+    return subProcessBuilder.getElement().getId();
+  }
+
+
   private static String createTask(AbstractFlowNodeBuilder startFlowNodeBuilder, JSONObject flowNode) throws InvocationTargetException, IllegalAccessException {
     Map<String, AbstractFlowNodeBuilder> map = Maps.newHashMap();
     String nodeType = flowNode.getString("nodeType");
@@ -268,7 +354,7 @@ public class BpmnBuilder {
       Method createTarget = getDeclaredMethod(abstractFlowNodeBuilder, "createTarget", Class.class);
       // 手动传入id
       createTarget.setAccessible(true);
-      Object target = createTarget.invoke(abstractFlowNodeBuilder, Type.TYPE_MAP.get(nodeType));
+      Object target = createTarget.invoke(abstractFlowNodeBuilder, NodeType.TYPE_CLASS_MAP.get(nodeType));
       if (target instanceof ServiceTask) {
         ServiceTask serviceTask = (ServiceTask) target;
         serviceTask.setName(flowNode.getString("nodeName"));
@@ -306,45 +392,5 @@ public class BpmnBuilder {
 
   private static AbstractFlowNodeBuilder<?, ?> moveToNode(AbstractFlowNodeBuilder<?, ?> startEventBuilder, String identifier) {
     return startEventBuilder.moveToNode(identifier);
-  }
-
-  private enum Type {
-
-    /**
-     * 并行事件
-     */
-    PARALLEL("parallelGateway", ParallelGateway.class),
-
-    /**
-     * 排他事件
-     */
-    EXCLUSIVE("exclusiveGateway", ExclusiveGateway.class),
-
-    /**
-     * 任务
-     */
-    SERVICE_TASK("serviceTask", ServiceTask.class);
-
-    private String type;
-
-    private Class<?> typeClass;
-
-    Type(String type, Class<?> typeClass) {
-      this.type = type;
-      this.typeClass = typeClass;
-    }
-
-    public final static Map<String, Class<?>> TYPE_MAP = Maps.newHashMap();
-
-    static {
-      for (Type element : Type.values()) {
-        TYPE_MAP.put(element.type, element.typeClass);
-      }
-    }
-
-    public boolean isEqual(String type) {
-      return this.type.equals(type);
-    }
-
   }
 }
