@@ -121,12 +121,12 @@ export default {
                     "branchNodes": [{
                         "nodeName": "条件1",
                         "type": 7,
-                        "conditionExpression":"=id>1", // 条件表达式
+                        "conditionExpression":"${id>1}", // 条件表达式
                         "nextNode": null,
                     }, {
                         "nodeName": "条件2",
                         "type": 7,
-                        "conditionExpression":"=id<1",
+                        "conditionExpression":"${id<1}",
                         "nextNode": null
                     }]
                 })
