@@ -424,7 +424,7 @@ public class BpmnBuilderTest {
             + "            },\n"
             + "            {\n"
             + "                \"nodeName\":\"condition B\",\n"
-            + "                \"conditionExpression\":\"${id<1}\",\n"
+            + "                \"isDefault\": true,\n"
             + "                \"nextNode\":{\n"
             + "                    \"nodeName\":\"User Task B\",\n"
             + "                    \"nodeType\":\"userTask\",\n"
@@ -821,7 +821,7 @@ public class BpmnBuilderTest {
     BranchNode branchNode2 =
         BranchNode.builder()
             .nodeName("分支2")
-            .conditionExpression("${id<=1}")
+            .isDefault(true)
             .nextNode(UserTaskDefinition.builder().nodeName("user b").assignee("lizhi02").build())
             .build();
 

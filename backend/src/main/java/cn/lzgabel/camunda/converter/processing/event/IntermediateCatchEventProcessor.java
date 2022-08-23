@@ -5,7 +5,6 @@ import cn.lzgabel.camunda.converter.bean.event.intermediate.MessageIntermediateC
 import cn.lzgabel.camunda.converter.bean.event.intermediate.TimerIntermediateCatchEventDefinition;
 import cn.lzgabel.camunda.converter.bean.event.start.EventType;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 
 /**

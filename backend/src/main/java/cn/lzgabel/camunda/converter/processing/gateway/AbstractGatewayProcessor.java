@@ -111,17 +111,22 @@ public abstract class AbstractGatewayProcessor<
       SequenceFlow sequenceFlow,
       ExclusiveGatewayBuilder exclusiveGatewayBuilder,
       BranchNode condition) {
-    String nodeName = condition.getNodeName();
-    String expression = condition.getConditionExpression();
-    if (StringUtils.isBlank(sequenceFlow.getName()) && StringUtils.isNotBlank(nodeName)) {
-      sequenceFlow.setName(nodeName);
-    }
-    // 设置条件表达式
-    if (Objects.isNull(sequenceFlow.getConditionExpression())
-        && StringUtils.isNotBlank(expression)) {
-      ConditionExpression conditionExpression =
-          createInstance(exclusiveGatewayBuilder, ConditionExpression.class);
-      sequenceFlow.setConditionExpression(conditionExpression);
+    if (condition.isDefault()) {
+      exclusiveGatewayBuilder.defaultFlow(sequenceFlow);
+    } else {
+      String nodeName = condition.getNodeName();
+      String expression = condition.getConditionExpression();
+      if (StringUtils.isBlank(sequenceFlow.getName()) && StringUtils.isNotBlank(nodeName)) {
+        sequenceFlow.setName(nodeName);
+      }
+      // 设置条件表达式
+      if (Objects.isNull(sequenceFlow.getConditionExpression())
+          && StringUtils.isNotBlank(expression)) {
+        ConditionExpression conditionExpression =
+            createInstance(exclusiveGatewayBuilder, ConditionExpression.class);
+        conditionExpression.setTextContent(expression);
+        sequenceFlow.setConditionExpression(conditionExpression);
+      }
     }
   }
 

@@ -17,6 +17,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class BranchNode {
 
+  private boolean isDefault;
+
   private String nodeName;
 
   private String conditionExpression;
