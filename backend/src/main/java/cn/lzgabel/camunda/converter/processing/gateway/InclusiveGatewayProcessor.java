@@ -2,7 +2,7 @@ package cn.lzgabel.camunda.converter.processing.gateway;
 
 import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.BranchNode;
-import cn.lzgabel.camunda.converter.bean.gateway.ExclusiveGatewayDefinition;
+import cn.lzgabel.camunda.converter.bean.gateway.InclusiveGatewayDefinition;
 import com.google.common.collect.Lists;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
@@ -12,29 +12,29 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
+import org.camunda.bpm.model.bpmn.builder.InclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 
 /**
  * 〈功能简述〉<br>
- * 〈ExclusiveGateway节点类型详情设置〉
+ * 〈InclusiveGateway节点类型详情设置〉
  *
  * @author lizhi
  * @since 1.0.0
  */
-public class ExclusiveGatewayProcessor
-    extends AbstractGatewayProcessor<ExclusiveGatewayDefinition, AbstractFlowNodeBuilder> {
+public class InclusiveGatewayProcessor
+    extends AbstractGatewayProcessor<InclusiveGatewayDefinition, AbstractFlowNodeBuilder> {
 
   @Override
   public String onComplete(
-      AbstractFlowNodeBuilder flowNodeBuilder, ExclusiveGatewayDefinition flowNode)
+      AbstractFlowNodeBuilder flowNodeBuilder, InclusiveGatewayDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-    ExclusiveGatewayBuilder exclusiveGatewayBuilder =
-        flowNodeBuilder.exclusiveGateway().name(flowNode.getNodeName());
+    InclusiveGatewayBuilder inclusiveGatewayBuilder =
+        flowNodeBuilder.inclusiveGateway().name(flowNode.getNodeName());
     List<BranchNode> branchNodes = flowNode.getBranchNodes();
     if (CollectionUtils.isEmpty(flowNode.getBranchNodes())
         && Objects.isNull(flowNode.getNextNode())) {
-      return exclusiveGatewayBuilder.getElement().getId();
+      return inclusiveGatewayBuilder.getElement().getId();
     }
     List<String> incoming = Lists.newArrayListWithCapacity(branchNodes.size());
 
@@ -56,7 +56,7 @@ public class ExclusiveGatewayProcessor
       //
       //
       if (Objects.isNull(nextNode)) {
-        incoming.add(exclusiveGatewayBuilder.getElement().getId());
+        incoming.add(inclusiveGatewayBuilder.getElement().getId());
         BranchNode condition =
             BranchNode.builder().nodeName(nodeName).conditionExpression(expression).build();
         emptyNextNodeBranchNodes.add(condition);
@@ -64,44 +64,44 @@ public class ExclusiveGatewayProcessor
       }
 
       // 只生成一个任务，同时设置当前任务的条件
-      nextNode.setIncoming(Collections.singletonList(exclusiveGatewayBuilder.getElement().getId()));
+      nextNode.setIncoming(Collections.singletonList(inclusiveGatewayBuilder.getElement().getId()));
       String id =
           onCreate(
-              moveToNode(exclusiveGatewayBuilder, exclusiveGatewayBuilder.getElement().getId()),
+              moveToNode(inclusiveGatewayBuilder, inclusiveGatewayBuilder.getElement().getId()),
               nextNode);
-      exclusiveGatewayBuilder.getElement().getOutgoing().stream()
+      inclusiveGatewayBuilder.getElement().getOutgoing().stream()
           .forEach(
               sequenceFlow ->
-                  conditionExpression(sequenceFlow, exclusiveGatewayBuilder, branchNode));
+                  conditionExpression(sequenceFlow, inclusiveGatewayBuilder, branchNode));
       if (Objects.nonNull(id)) {
         incoming.add(id);
       }
     }
 
-    String id = exclusiveGatewayBuilder.getElement().getId();
+    String id = inclusiveGatewayBuilder.getElement().getId();
     BaseDefinition nextNode = flowNode.getNextNode();
     if (Objects.nonNull(nextNode)) {
       nextNode.setIncoming(incoming);
-      return merge(exclusiveGatewayBuilder, id, emptyNextNodeBranchNodes, nextNode);
+      return merge(inclusiveGatewayBuilder, id, emptyNextNodeBranchNodes, nextNode);
     }
     return id;
   }
 
   protected void accept(
       AbstractFlowNodeBuilder flowNodeBuilder, String mergeId, List<BranchNode> conditions) {
-    if (!(flowNodeBuilder instanceof ExclusiveGatewayBuilder)) {
+    if (!(flowNodeBuilder instanceof InclusiveGatewayBuilder)) {
       return;
     }
     //  针对分支条件中空分支场景 添加条件表达式
-    ExclusiveGatewayBuilder exclusiveGatewayBuilder = (ExclusiveGatewayBuilder) flowNodeBuilder;
+    InclusiveGatewayBuilder inclusiveGatewayBuilder = (InclusiveGatewayBuilder) flowNodeBuilder;
     if (CollectionUtils.isNotEmpty(conditions)) {
       List<SequenceFlow> sequenceFlows =
-          moveToNode(exclusiveGatewayBuilder, mergeId).getElement().getIncoming().stream()
+          moveToNode(inclusiveGatewayBuilder, mergeId).getElement().getIncoming().stream()
               // 获取从源 gateway 到目标节点 未设置条件表达式的节点
               .filter(
                   e ->
                       StringUtils.equals(
-                          e.getSource().getId(), exclusiveGatewayBuilder.getElement().getId()))
+                          e.getSource().getId(), inclusiveGatewayBuilder.getElement().getId()))
               .collect(Collectors.toList());
 
       sequenceFlows.stream()
@@ -109,7 +109,7 @@ public class ExclusiveGatewayProcessor
               sequenceFlow -> {
                 if (!conditions.isEmpty()) {
                   BranchNode condition = conditions.get(0);
-                  conditionExpression(sequenceFlow, exclusiveGatewayBuilder, condition);
+                  conditionExpression(sequenceFlow, inclusiveGatewayBuilder, condition);
                   conditions.remove(0);
                 }
               });
@@ -118,11 +118,12 @@ public class ExclusiveGatewayProcessor
 
   private void conditionExpression(
       SequenceFlow sequenceFlow,
-      ExclusiveGatewayBuilder exclusiveGatewayBuilder,
+      InclusiveGatewayBuilder inclusiveGatewayBuilder,
       BranchNode condition) {
     if (condition.isDefault()) {
-      exclusiveGatewayBuilder.defaultFlow(sequenceFlow);
+      inclusiveGatewayBuilder.defaultFlow(sequenceFlow);
     }
-    createConditionExpression(sequenceFlow, exclusiveGatewayBuilder, condition);
+
+    createConditionExpression(sequenceFlow, inclusiveGatewayBuilder, condition);
   }
 }

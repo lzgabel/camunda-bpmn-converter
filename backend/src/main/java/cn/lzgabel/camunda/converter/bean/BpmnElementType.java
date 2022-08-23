@@ -37,6 +37,7 @@ public enum BpmnElementType {
 
   // Gateways
   EXCLUSIVE_GATEWAY("exclusiveGateway", ExclusiveGateway.class),
+  INCLUSIVE_GATEWAY("inclusiveGateway", InclusiveGateway.class),
   PARALLEL_GATEWAY("parallelGateway", ParallelGateway.class),
   EVENT_BASED_GATEWAY("eventBasedGateway", EventBasedGateway.class),
 

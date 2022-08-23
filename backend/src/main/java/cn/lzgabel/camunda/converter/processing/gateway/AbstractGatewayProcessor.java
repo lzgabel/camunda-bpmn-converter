@@ -13,11 +13,8 @@ import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.instance.ConditionExpression;
 import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
@@ -78,55 +75,23 @@ public abstract class AbstractGatewayProcessor<
    * @param mergeId
    * @param conditions
    */
-  private void accept(
-      AbstractFlowNodeBuilder flowNodeBuilder, String mergeId, List<BranchNode> conditions) {
-    if (!(flowNodeBuilder instanceof ExclusiveGatewayBuilder)) {
-      return;
-    }
-    //  针对分支条件中空分支场景 添加条件表达式
-    ExclusiveGatewayBuilder exclusiveGatewayBuilder = (ExclusiveGatewayBuilder) flowNodeBuilder;
-    if (CollectionUtils.isNotEmpty(conditions)) {
-      List<SequenceFlow> sequenceFlows =
-          moveToNode(exclusiveGatewayBuilder, mergeId).getElement().getIncoming().stream()
-              // 获取从源 gateway 到目标节点 未设置条件表达式的节点
-              .filter(
-                  e ->
-                      StringUtils.equals(
-                          e.getSource().getId(), exclusiveGatewayBuilder.getElement().getId()))
-              .collect(Collectors.toList());
+  protected void accept(
+      AbstractFlowNodeBuilder flowNodeBuilder, String mergeId, List<BranchNode> conditions) {}
 
-      sequenceFlows.stream()
-          .forEach(
-              sequenceFlow -> {
-                if (!conditions.isEmpty()) {
-                  BranchNode condition = conditions.get(0);
-                  conditionExpress(sequenceFlow, exclusiveGatewayBuilder, condition);
-                  conditions.remove(0);
-                }
-              });
+  protected void createConditionExpression(
+      SequenceFlow sequenceFlow, AbstractFlowNodeBuilder flowNodeBuilder, BranchNode condition) {
+    String nodeName = condition.getNodeName();
+    String expression = condition.getConditionExpression();
+    if (StringUtils.isBlank(sequenceFlow.getName()) && StringUtils.isNotBlank(nodeName)) {
+      sequenceFlow.setName(nodeName);
     }
-  }
-
-  void conditionExpress(
-      SequenceFlow sequenceFlow,
-      ExclusiveGatewayBuilder exclusiveGatewayBuilder,
-      BranchNode condition) {
-    if (condition.isDefault()) {
-      exclusiveGatewayBuilder.defaultFlow(sequenceFlow);
-    } else {
-      String nodeName = condition.getNodeName();
-      String expression = condition.getConditionExpression();
-      if (StringUtils.isBlank(sequenceFlow.getName()) && StringUtils.isNotBlank(nodeName)) {
-        sequenceFlow.setName(nodeName);
-      }
-      // 设置条件表达式
-      if (Objects.isNull(sequenceFlow.getConditionExpression())
-          && StringUtils.isNotBlank(expression)) {
-        ConditionExpression conditionExpression =
-            createInstance(exclusiveGatewayBuilder, ConditionExpression.class);
-        conditionExpression.setTextContent(expression);
-        sequenceFlow.setConditionExpression(conditionExpression);
-      }
+    // 设置条件表达式
+    if (Objects.isNull(sequenceFlow.getConditionExpression())
+        && StringUtils.isNotBlank(expression)) {
+      ConditionExpression conditionExpression =
+          createInstance(flowNodeBuilder, ConditionExpression.class);
+      conditionExpression.setTextContent(expression);
+      sequenceFlow.setConditionExpression(conditionExpression);
     }
   }
 

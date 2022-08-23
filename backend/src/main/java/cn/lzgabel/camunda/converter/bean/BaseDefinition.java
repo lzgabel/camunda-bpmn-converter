@@ -4,6 +4,7 @@ import cn.lzgabel.camunda.converter.bean.event.intermediate.IntermediateCatchEve
 import cn.lzgabel.camunda.converter.bean.event.start.EndEventDefinition;
 import cn.lzgabel.camunda.converter.bean.event.start.StartEventDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.ExclusiveGatewayDefinition;
+import cn.lzgabel.camunda.converter.bean.gateway.InclusiveGatewayDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.ParallelGatewayDefinition;
 import cn.lzgabel.camunda.converter.bean.subprocess.CallActivityDefinition;
 import cn.lzgabel.camunda.converter.bean.subprocess.SubProcessDefinition;
@@ -50,6 +51,7 @@ import lombok.experimental.SuperBuilder;
   // gateway
   @JsonSubTypes.Type(value = ParallelGatewayDefinition.class, name = "parallelGateway"),
   @JsonSubTypes.Type(value = ExclusiveGatewayDefinition.class, name = "exclusiveGateway"),
+  @JsonSubTypes.Type(value = InclusiveGatewayDefinition.class, name = "inclusiveGateway"),
 
   // catch event
   @JsonSubTypes.Type(

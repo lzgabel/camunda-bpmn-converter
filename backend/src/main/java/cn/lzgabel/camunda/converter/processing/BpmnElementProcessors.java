@@ -8,6 +8,7 @@ import cn.lzgabel.camunda.converter.processing.event.EndEventProcessor;
 import cn.lzgabel.camunda.converter.processing.event.IntermediateCatchEventProcessor;
 import cn.lzgabel.camunda.converter.processing.event.StartEventProcessor;
 import cn.lzgabel.camunda.converter.processing.gateway.ExclusiveGatewayProcessor;
+import cn.lzgabel.camunda.converter.processing.gateway.InclusiveGatewayProcessor;
 import cn.lzgabel.camunda.converter.processing.gateway.ParallelGatewayProcessor;
 import cn.lzgabel.camunda.converter.processing.task.*;
 import java.util.EnumMap;
@@ -29,6 +30,7 @@ public final class BpmnElementProcessors {
 
     // gateways
     processors.put(BpmnElementType.EXCLUSIVE_GATEWAY, new ExclusiveGatewayProcessor());
+    processors.put(BpmnElementType.INCLUSIVE_GATEWAY, new InclusiveGatewayProcessor());
     processors.put(BpmnElementType.PARALLEL_GATEWAY, new ParallelGatewayProcessor());
 
     // containers

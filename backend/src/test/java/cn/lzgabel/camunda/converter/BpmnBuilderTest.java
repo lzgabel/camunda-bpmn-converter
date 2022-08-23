@@ -9,6 +9,7 @@ import cn.lzgabel.camunda.converter.bean.event.start.TimerDefinitionType;
 import cn.lzgabel.camunda.converter.bean.event.start.TimerStartEventDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.BranchNode;
 import cn.lzgabel.camunda.converter.bean.gateway.ExclusiveGatewayDefinition;
+import cn.lzgabel.camunda.converter.bean.gateway.InclusiveGatewayDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.ParallelGatewayDefinition;
 import cn.lzgabel.camunda.converter.bean.subprocess.CallActivityDefinition;
 import cn.lzgabel.camunda.converter.bean.subprocess.SubProcessDefinition;
@@ -447,7 +448,6 @@ public class BpmnBuilderTest {
 
   @Test
   public void parallel_gateway_from_json() throws IOException {
-
     String json =
         "{\n"
             + "    \"process\":{\n"
@@ -489,6 +489,84 @@ public class BpmnBuilderTest {
             + "                    \"assignee\":\"abc\",\n"
             + "                    \"nextNode\":null\n"
             + "                }\n"
+            + "            }\n"
+            + "        ]\n"
+            + "    }\n"
+            + "}";
+
+    BpmnModelInstance bpmnModelInstance = BpmnBuilder.build(json);
+    Path path = Paths.get(OUT_PATH + testName.getMethodName() + ".bpmn");
+    if (path.toFile().exists()) {
+      path.toFile().delete();
+    }
+    Files.createDirectories(path.getParent());
+    Bpmn.writeModelToFile(Files.createFile(path).toFile(), bpmnModelInstance);
+  }
+
+  @Test
+  public void inclusive_gateway_from_json() throws IOException {
+    String json =
+        "{\n"
+            + "    \"process\":{\n"
+            + "        \"processId\":\"process-id\",\n"
+            + "        \"name\":\"process-name\"\n"
+            + "    },\n"
+            + "    \"processNode\":{\n"
+            + "        \"nodeName\":\"inclusive gateway start\",\n"
+            + "        \"nodeType\":\"inclusiveGateway\",\n"
+            + "        \"incoming\":null,\n"
+            + "        \"nextNode\":{\n"
+            + "            \"nodeType\":\"parallelGateway\",\n"
+            + "            \"nextNode\":{\n"
+            + "                \"nodeName\":\"user d\",\n"
+            + "                \"nodeType\":\"userTask\",\n"
+            + "                \"incoming\":null,\n"
+            + "                \"nextNode\":null,\n"
+            + "                \"assignee\":\"lizhi03\",\n"
+            + "            },\n"
+            + "            \"branchNodes\":[\n"
+            + "\n"
+            + "            ]\n"
+            + "        },\n"
+            + "        \"branchNodes\":[\n"
+            + "            {\n"
+            + "                \"nodeName\":\"分支1\",\n"
+            + "                \"conditionExpression\":\"${id>1}\",\n"
+            + "                \"nextNode\":{\n"
+            + "                    \"nodeName\":\"user a\",\n"
+            + "                    \"nodeType\":\"userTask\",\n"
+            + "                    \"incoming\":null,\n"
+            + "                    \"nextNode\":null,\n"
+            + "                    \"assignee\":\"lizhi01\",\n"
+            + "                    \"candidateGroups\":null\n"
+            + "                },\n"
+            + "                \"default\":false\n"
+            + "            },\n"
+            + "            {\n"
+            + "                \"nodeName\":\"分支2\",\n"
+            + "                \"conditionExpression\":\"${id<1}\",\n"
+            + "                \"nextNode\":{\n"
+            + "                    \"nodeName\":\"user b\",\n"
+            + "                    \"nodeType\":\"userTask\",\n"
+            + "                    \"incoming\":null,\n"
+            + "                    \"nextNode\":null,\n"
+            + "                    \"assignee\":\"lizhi02\",\n"
+            + "                    \"candidateGroups\":null\n"
+            + "                },\n"
+            + "                \"default\":false\n"
+            + "            },\n"
+            + "            {\n"
+            + "                \"nodeName\":\"默认分支\",\n"
+            + "                \"conditionExpression\":null,\n"
+            + "                \"nextNode\":{\n"
+            + "                    \"nodeName\":\"user c\",\n"
+            + "                    \"nodeType\":\"userTask\",\n"
+            + "                    \"incoming\":null,\n"
+            + "                    \"nextNode\":null,\n"
+            + "                    \"assignee\":\"lizhi03\",\n"
+            + "                    \"candidateGroups\":null\n"
+            + "                },\n"
+            + "                \"default\":true\n"
             + "            }\n"
             + "        ]\n"
             + "    }\n"
@@ -879,6 +957,59 @@ public class BpmnBuilderTest {
                     .nodeName("parallel gateway end")
                     .nextNode(
                         UserTaskDefinition.builder().nodeName("user c").assignee("lizhi03").build())
+                    .build())
+            .build();
+
+    ProcessDefinition processDefinition =
+        ProcessDefinition.builder()
+            .name("process-name")
+            .processId("process-id")
+            .processNode(processNode)
+            .build();
+
+    BpmnModelInstance bpmnModelInstance = BpmnBuilder.build(processDefinition);
+    Path path = Paths.get(OUT_PATH + testName.getMethodName() + ".bpmn");
+    if (path.toFile().exists()) {
+      path.toFile().delete();
+    }
+    Files.createDirectories(path.getParent());
+    Bpmn.writeModelToFile(Files.createFile(path).toFile(), bpmnModelInstance);
+  }
+
+  @Test
+  public void inclusive_gateway_from_process_definition() throws IOException {
+
+    BranchNode branchNode1 =
+        BranchNode.builder()
+            .nodeName("分支1")
+            .conditionExpression("${id>1}")
+            .nextNode(UserTaskDefinition.builder().nodeName("user a").assignee("lizhi01").build())
+            .build();
+
+    BranchNode branchNode2 =
+        BranchNode.builder()
+            .nodeName("分支2")
+            .conditionExpression("${id<1}")
+            .nextNode(UserTaskDefinition.builder().nodeName("user b").assignee("lizhi02").build())
+            .build();
+
+    BranchNode branchNode3 =
+        BranchNode.builder()
+            .nodeName("默认分支")
+            .isDefault(true)
+            .nextNode(UserTaskDefinition.builder().nodeName("user c").assignee("lizhi03").build())
+            .build();
+
+    InclusiveGatewayDefinition processNode =
+        InclusiveGatewayDefinition.builder()
+            .nodeName("inclusive gateway start")
+            .branchNode(branchNode1)
+            .branchNode(branchNode2)
+            .branchNode(branchNode3)
+            .nextNode(
+                ParallelGatewayDefinition.builder()
+                    .nextNode(
+                        UserTaskDefinition.builder().nodeName("user d").assignee("lizhi03").build())
                     .build())
             .build();
 
