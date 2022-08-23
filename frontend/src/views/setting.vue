@@ -47,11 +47,11 @@
 	</div>
 </template>
 <script>
-import errorDialog from '@/components/dialog/errorDialog'
-import promoterDrawer from '@/components/drawer/promoterDrawer'
-import approverDrawer from '@/components/drawer/approverDrawer'
-import copyerDrawer from '@/components/drawer/copyerDrawer'
-import conditionDrawer from '@/components/drawer/conditionDrawer'
+import errorDialog from '@/components/dialog/errorDialog';
+import promoterDrawer from '@/components/drawer/promoterDrawer';
+import approverDrawer from '@/components/drawer/approverDrawer';
+import copyerDrawer from '@/components/drawer/copyerDrawer';
+import conditionDrawer from '@/components/drawer/conditionDrawer';
 import ElementUI from 'element-ui';
 
 function replace(node) {

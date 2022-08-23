@@ -1,128 +1,226 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>cn.lzgabel</groupId>
-        <artifactId>camunda-bpmn-converter-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-    <artifactId>camunda-bpmn-converter</artifactId>
-    <packaging>jar</packaging>
+  <parent>
+    <groupId>cn.lzgabel</groupId>
+    <artifactId>camunda-bpmn-converter-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>camunda-bpmn-converter</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-    <name>camunda-bpmn-converter</name>
+  <name>camunda-bpmn-converter</name>
 
-    <description>Camunda BPMN Converter is a tool to convert JSON file format to BPMN file format</description>
+  <description>Camunda BPMN Converter is a tool to convert JSON file format to BPMN file format</description>
 
-    <properties>
-        <java.version>1.8</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-boot.version>2.1.13.RELEASE</spring-boot.version>
-    </properties>
+  <properties>
+    <java.version>1.8</java.version>
+    <plugin.version.googlejavaformat>1.7</plugin.version.googlejavaformat>
+    <plugin.version.spotless>2.22.4</plugin.version.spotless>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+    <skipChecks>false</skipChecks>
+    <spring-boot.version>2.1.13.RELEASE</spring-boot.version>
+    <zeebe.version>8.0.1</zeebe.version>
+  </properties>
+
+  <dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>org.camunda.bpm.model</groupId>
-            <artifactId>camunda-bpmn-model</artifactId>
-            <version>7.15.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.73</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>30.1-jre</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.18</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.lzgabel.layouter</groupId>
-            <artifactId>bpmn-auto-layout</artifactId>
-            <version>1.0.4</version>
-        </dependency>
-
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
+  </dependencyManagement>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.camunda.bpm.model</groupId>
+      <artifactId>camunda-bpmn-model</artifactId>
+      <version>7.15.0</version>
+    </dependency>
 
-    <dependencyManagement>
-        <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.10</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.83</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>30.1-jre</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.18</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.lzgabel.layouter</groupId>
+      <artifactId>bpmn-auto-layout</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>camunda-bpmn-converter</finalName>
+
+    <resources>
+      <resource>
+        <filtering>false</filtering>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>*.xml</include>
+          <include>**/*.xml</include>
+          <include>**/*.yml</include>
+          <include>*.properties</include>
+          <include>**/*.properties</include>
+          <include>*.json</include>
+          <include>**/*.json</include>
+          <include>shaman-config/*</include>
+          <include>bpmn/*</include>
+          <include>static/**</include>
+        </includes>
+      </resource>
+      <resource>
+        <!--将shaman-config放到资源路径中，${project.basedir}是指与本pom父目录-->
+        <directory>${project.basedir}</directory>
+        <includes>
+          <include>shaman-config/*</include>
+        </includes>
+      </resource>
+    </resources>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${plugin.version.spotless}</version>
+          <configuration>
+            <!-- Google code format plugin -->
+            <java>
+              <googleJavaFormat>
+                <version>${plugin.version.googlejavaformat}</version>
+                <style>GOOGLE</style>
+              </googleJavaFormat>
+            </java>
+            <!-- SortPOM plugin -->
+            <pom>
+              <sortPom>
+                <expandEmptyElements>false</expandEmptyElements>
+                <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+                <sortProperties>true</sortProperties>
+              </sortPom>
+            </pom>
+            <applySkip>${skipChecks}</applySkip>
+            <checkSkip>${skipChecks}</checkSkip>
+          </configuration>
+          <dependencies>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+              <groupId>com.google.googlejavaformat</groupId>
+              <artifactId>google-java-format</artifactId>
+              <version>${plugin.version.googlejavaformat}</version>
             </dependency>
-        </dependencies>
-    </dependencyManagement>
+          </dependencies>
+          <executions>
+            <execution>
+              <goals>
+                <goal>apply</goal>
+              </goals>
+              <phase>process-sources</phase>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>*.xml</include>
-                    <include>**/*.xml</include>
-                    <include>**/*.yml</include>
-                    <include>*.properties</include>
-                    <include>**/*.properties</include>
-                    <include>*.json</include>
-                    <include>**/*.json</include>
-                    <include>shaman-config/*</include>
-                    <include>bpmn/*</include>
-                    <include>static/**</include>
-                </includes>
-            </resource>
-            <resource>
-                <!--将shaman-config放到资源路径中，${project.basedir}是指与本pom父目录-->
-                <directory>${project.basedir}</directory>
-                <includes>
-                    <include>shaman-config/*</include>
-                </includes>
-            </resource>
-        </resources>
-        <finalName>camunda-bpmn-converter</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${plugin.version.spotless}</version>
+        <configuration>
+          <markdown>
+            <includes>
+              <include>**/*.md</include>
+            </includes>
+            <excludes>
+              <exclude>**/target/**/*.md</exclude>
+            </excludes>
+            <flexmark />
+          </markdown>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
 
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
