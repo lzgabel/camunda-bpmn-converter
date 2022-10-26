@@ -11,8 +11,10 @@ import cn.lzgabel.camunda.converter.bean.subprocess.SubProcessDefinition;
 import cn.lzgabel.camunda.converter.bean.task.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Supplier;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -72,6 +74,9 @@ public abstract class BaseDefinition implements Serializable {
   /** 后继节点 */
   private BaseDefinition nextNode;
 
+  /** 执行监听器 */
+  private List<ExecutionListener> listeners = Lists.newArrayList();
+
   public abstract String getNodeType();
 
   public abstract static class BaseDefinitionBuilder<
@@ -83,6 +88,16 @@ public abstract class BaseDefinition implements Serializable {
 
     public B nextNode(BaseDefinition nextNode) {
       this.nextNode = nextNode;
+      return self();
+    }
+
+    public B listener(ExecutionListener listener) {
+      this.listeners.add(listener);
+      return self();
+    }
+
+    public B listener(Supplier<ExecutionListener> supplier) {
+      this.listeners.add(supplier.get());
       return self();
     }
   }

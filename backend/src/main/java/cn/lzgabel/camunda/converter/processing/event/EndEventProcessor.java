@@ -3,6 +3,7 @@ package cn.lzgabel.camunda.converter.processing.event;
 import cn.lzgabel.camunda.converter.bean.event.start.EndEventDefinition;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.EndEventBuilder;
 
 /**
  * 〈功能简述〉<br>
@@ -16,6 +17,10 @@ public class EndEventProcessor
 
   @Override
   public String onComplete(AbstractFlowNodeBuilder builder, EndEventDefinition flowNode) {
-    return builder.endEvent().getElement().getId();
+    EndEventBuilder endEventBuilder = builder.endEvent();
+
+    // create execution listener
+    createExecutionListener(endEventBuilder, flowNode);
+    return endEventBuilder.getElement().getId();
   }
 }

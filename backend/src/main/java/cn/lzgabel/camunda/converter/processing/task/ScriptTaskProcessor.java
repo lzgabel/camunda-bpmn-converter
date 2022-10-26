@@ -6,6 +6,7 @@ import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.ScriptTaskBuilder;
 import org.camunda.bpm.model.bpmn.instance.ScriptTask;
 
 /**
@@ -29,13 +30,17 @@ public class ScriptTaskProcessor
 
     // 创建 ReceiveTask
     ScriptTask scriptTask = (ScriptTask) createInstance(flowNodeBuilder, nodeType);
-    scriptTask
-        .builder()
+    ScriptTaskBuilder scriptTaskBuilder = scriptTask.builder();
+
+    scriptTaskBuilder
         .name(nodeName)
         .scriptFormat(scriptFormat)
         .camundaResultVariable(resultVariable)
         .scriptText(scriptText);
     String id = scriptTask.getId();
+
+    // create execution listener
+    createExecutionListener(scriptTaskBuilder, flowNode);
 
     // 如果当前任务还有后续任务，则遍历创建后续任务
     BaseDefinition nextNode = flowNode.getNextNode();

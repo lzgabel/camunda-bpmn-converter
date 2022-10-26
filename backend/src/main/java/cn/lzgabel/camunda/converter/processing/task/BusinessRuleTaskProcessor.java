@@ -52,6 +52,9 @@ public class BusinessRuleTaskProcessor
       taskBuilder.camundaDecisionRefTenantId(decisionRefTenantId);
     }
 
+    // create execution listener
+    createExecutionListener(taskBuilder, flowNode);
+
     String id = scriptTask.getId();
 
     // 如果当前任务还有后续任务，则遍历创建后续任务

@@ -42,6 +42,8 @@ public class IntermediateCatchEventProcessor
           .getElement()
           .getId();
     }
+    // create execution listener
+    createExecutionListener(flowNodeBuilder, flowNode);
     return null;
   }
 }

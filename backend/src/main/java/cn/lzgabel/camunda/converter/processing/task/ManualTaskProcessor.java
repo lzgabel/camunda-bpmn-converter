@@ -28,6 +28,9 @@ public class ManualTaskProcessor
     String id = manualTask.getId();
     manualTask.setName(nodeName);
 
+    // create execution listener
+    createExecutionListener(manualTask.builder(), flowNode);
+
     // 如果当前任务还有后续任务，则遍历创建后续任务
     BaseDefinition nextNode = flowNode.getNextNode();
     if (Objects.nonNull(nextNode)) {

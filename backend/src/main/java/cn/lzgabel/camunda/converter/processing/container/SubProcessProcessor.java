@@ -26,6 +26,9 @@ public class SubProcessProcessor
     SubProcessBuilder subProcessBuilder = flowNodeBuilder.subProcess();
     EmbeddedSubProcessBuilder embeddedSubProcessBuilder = subProcessBuilder.embeddedSubProcess();
 
+    // create execution listener
+    createExecutionListener(subProcessBuilder, flowNode);
+
     // 子流程内部创建开始
     StartEventBuilder startEventBuilder = embeddedSubProcessBuilder.startEvent();
     subProcessBuilder.getElement().setName(flowNode.getNodeName());

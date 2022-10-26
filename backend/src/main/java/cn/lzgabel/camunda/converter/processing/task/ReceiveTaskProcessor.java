@@ -6,6 +6,7 @@ import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.ReceiveTaskBuilder;
 import org.camunda.bpm.model.bpmn.instance.ReceiveTask;
 
 /**
@@ -27,8 +28,12 @@ public class ReceiveTaskProcessor
 
     // 创建 ReceiveTask
     ReceiveTask receiveTask = (ReceiveTask) createInstance(flowNodeBuilder, nodeType);
-    receiveTask.builder().name(nodeName).message(messageName);
+    ReceiveTaskBuilder receiveTaskBuilder = receiveTask.builder();
+    receiveTaskBuilder.name(nodeName).message(messageName);
     String id = receiveTask.getId();
+
+    // create execution listener
+    createExecutionListener(receiveTaskBuilder, flowNode);
 
     // 如果当前任务还有后续任务，则遍历创建后续任务
     BaseDefinition nextNode = flowNode.getNextNode();

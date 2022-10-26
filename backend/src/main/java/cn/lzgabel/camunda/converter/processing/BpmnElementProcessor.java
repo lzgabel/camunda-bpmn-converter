@@ -4,6 +4,7 @@ import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.BpmnElementType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractBaseElementBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
@@ -107,5 +108,30 @@ public interface BpmnElementProcessor<
       e.printStackTrace();
       return null;
     }
+  }
+
+  /**
+   * 创建监听器
+   *
+   * @param flowNodeBuilder builder
+   * @param flowNode 当前节点
+   */
+  default void createExecutionListener(
+      AbstractFlowNodeBuilder<?, ?> flowNodeBuilder, BaseDefinition flowNode) {
+    flowNode.getListeners().stream()
+        .filter(Objects::nonNull)
+        .forEach(
+            listener -> {
+              if (listener.isClass()) {
+                flowNodeBuilder.camundaExecutionListenerClass(
+                    listener.getEventType(), listener.getJavaClass());
+              } else if (listener.isDelegateExpression()) {
+                flowNodeBuilder.camundaExecutionListenerDelegateExpression(
+                    listener.getEventType(), listener.getDelegateExpression());
+              } else if (listener.isExpression()) {
+                flowNodeBuilder.camundaExecutionListenerExpression(
+                    listener.getEventType(), listener.getExpression());
+              }
+            });
   }
 }

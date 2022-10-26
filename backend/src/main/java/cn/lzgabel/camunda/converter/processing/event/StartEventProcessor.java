@@ -49,6 +49,9 @@ public class StartEventProcessor
       }
     }
 
+    // create execution listener
+    createExecutionListener(start, flowNode);
+
     String id = start.getElement().getId();
     BaseDefinition nextNode = flowNode.getNextNode();
     if (Objects.isNull(nextNode)) {

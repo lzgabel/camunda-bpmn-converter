@@ -29,6 +29,9 @@ public class ParallelGatewayProcessor
       throws InvocationTargetException, IllegalAccessException {
     String name = flowNode.getNodeName();
     ParallelGatewayBuilder parallelGatewayBuilder = flowNodeBuilder.parallelGateway().name(name);
+
+    // create execution listener
+    createExecutionListener(parallelGatewayBuilder, flowNode);
     List<BranchNode> branchNodes = flowNode.getBranchNodes();
     if (CollectionUtils.isEmpty(branchNodes) && Objects.isNull(flowNode.getNextNode())) {
       return parallelGatewayBuilder.getElement().getId();

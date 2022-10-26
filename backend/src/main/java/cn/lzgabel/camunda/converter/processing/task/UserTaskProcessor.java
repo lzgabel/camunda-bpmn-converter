@@ -41,6 +41,9 @@ public class UserTaskProcessor
       userTaskBuilder.camundaCandidateGroups(candidateGroups);
     }
 
+    // create execution listener
+    createExecutionListener(userTaskBuilder, flowNode);
+
     String id = userTask.getId();
     // 如果当前任务还有后续任务，则遍历创建后续任务
     BaseDefinition nextNode = flowNode.getNextNode();

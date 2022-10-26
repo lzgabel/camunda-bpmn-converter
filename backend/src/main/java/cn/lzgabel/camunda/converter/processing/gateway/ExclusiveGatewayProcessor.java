@@ -31,6 +31,9 @@ public class ExclusiveGatewayProcessor
       throws InvocationTargetException, IllegalAccessException {
     ExclusiveGatewayBuilder exclusiveGatewayBuilder =
         flowNodeBuilder.exclusiveGateway().name(flowNode.getNodeName());
+
+    // create execution listener
+    createExecutionListener(exclusiveGatewayBuilder, flowNode);
     List<BranchNode> branchNodes = flowNode.getBranchNodes();
     if (CollectionUtils.isEmpty(flowNode.getBranchNodes())
         && Objects.isNull(flowNode.getNextNode())) {
