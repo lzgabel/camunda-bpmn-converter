@@ -2,6 +2,8 @@ package cn.lzgabel.camunda.converter.bean.task;
 
 import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.BpmnElementType;
+import cn.lzgabel.camunda.converter.bean.listener.TaskListener;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -20,7 +22,11 @@ public class UserTaskDefinition extends BaseDefinition {
 
   private String assignee;
 
+  private String candidateUsers;
+
   private String candidateGroups;
+
+  private List<TaskListener> taskListeners;
 
   @Override
   public String getNodeType() {

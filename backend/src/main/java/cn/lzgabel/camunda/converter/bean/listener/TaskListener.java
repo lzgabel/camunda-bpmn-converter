@@ -1,22 +1,21 @@
-package cn.lzgabel.camunda.converter.bean;
+package cn.lzgabel.camunda.converter.bean.listener;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * 〈功能简述〉<br>
  * 〈〉
  *
  * @author lizhi
- * @date 2022/10/26
+ * @date 2023/3/2
  * @since 1.0.0
  */
 @Data
 @Accessors(chain = true)
-public class ExecutionListener {
+public class TaskListener {
 
-  private String eventType = "start";
+  private String eventType = "create";
 
   private String expression;
 
@@ -25,14 +24,14 @@ public class ExecutionListener {
   private String javaClass;
 
   public boolean isClass() {
-    return StringUtils.isNotBlank(javaClass);
+    return javaClass != null;
   }
 
   public boolean isDelegateExpression() {
-    return StringUtils.isNotBlank(delegateExpression);
+    return delegateExpression != null;
   }
 
   public boolean isExpression() {
-    return StringUtils.isNotBlank(expression);
+    return expression != null;
   }
 }

@@ -1,7 +1,6 @@
 package cn.lzgabel.camunda.converter;
 
 import cn.lzgabel.camunda.converter.bean.DecisionRefBindingType;
-import cn.lzgabel.camunda.converter.bean.ExecutionListener;
 import cn.lzgabel.camunda.converter.bean.ProcessDefinition;
 import cn.lzgabel.camunda.converter.bean.event.intermediate.MessageIntermediateCatchEventDefinition;
 import cn.lzgabel.camunda.converter.bean.event.intermediate.TimerIntermediateCatchEventDefinition;
@@ -12,6 +11,8 @@ import cn.lzgabel.camunda.converter.bean.gateway.BranchNode;
 import cn.lzgabel.camunda.converter.bean.gateway.ExclusiveGatewayDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.InclusiveGatewayDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.ParallelGatewayDefinition;
+import cn.lzgabel.camunda.converter.bean.listener.ExecutionListener;
+import cn.lzgabel.camunda.converter.bean.listener.TaskListener;
 import cn.lzgabel.camunda.converter.bean.subprocess.CallActivityDefinition;
 import cn.lzgabel.camunda.converter.bean.subprocess.SubProcessDefinition;
 import cn.lzgabel.camunda.converter.bean.task.*;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.junit.Rule;
@@ -292,6 +295,35 @@ public class BpmnBuilderTest {
             + "                \"javaClass\":\"com.lzgabel.Test\"\n"
             + "            }\n"
             + "        ]\n"
+            + "    }\n"
+            + "}";
+
+    BpmnModelInstance bpmnModelInstance = BpmnBuilder.build(json);
+    Path path = Paths.get(OUT_PATH + testName.getMethodName() + ".bpmn");
+    if (path.toFile().exists()) {
+      path.toFile().delete();
+    }
+    Files.createDirectories(path.getParent());
+    Bpmn.writeModelToFile(Files.createFile(path).toFile(), bpmnModelInstance);
+  }
+
+  @Test
+  public void user_task_with_task_listener_from_json() throws IOException {
+    String json =
+        "{\n"
+            + "    \"process\":{\n"
+            + "        \"processId\":\"process-id\",\n"
+            + "        \"name\":\"process-name\"\n"
+            + "    },\n"
+            + "    \"processNode\":{\n"
+            + "        \"nodeName\":\"User Task A\",\n"
+            + "        \"nodeType\":\"userTask\",\n"
+            + "        \"candidateGroups\":\"lizhi,xiaoming\",\n"
+            + "        \"nextNode\":null,\n"
+            + "        \"taskListeners\":[{\n"
+            + "            \"eventType\":\"create\",\n"
+            + "            \"javaClass\":\"com.lzgabel.Test\"\n"
+            + "        }]\n"
             + "    }\n"
             + "}";
 
@@ -789,7 +821,8 @@ public class BpmnBuilderTest {
         UserTaskDefinition.builder()
             .nodeName("user task a")
             .assignee("lizhi")
-            .candidateGroups("lizhi,shuwen")
+            .candidateUsers("lizhi,shuwen")
+            .candidateGroups("admin,member")
             .build();
 
     ProcessDefinition processDefinition =
@@ -821,6 +854,38 @@ public class BpmnBuilderTest {
                     new ExecutionListener().setEventType("start").setJavaClass("com.lzgabel.Test"))
             .listener(
                 () -> new ExecutionListener().setEventType("end").setJavaClass("com.lzgabel.Test"))
+            .build();
+
+    ProcessDefinition processDefinition =
+        ProcessDefinition.builder()
+            .name("process-name")
+            .processId("process-id")
+            .processNode(processNode)
+            .build();
+
+    BpmnModelInstance bpmnModelInstance = BpmnBuilder.build(processDefinition);
+    Path path = Paths.get(OUT_PATH + testName.getMethodName() + ".bpmn");
+    if (path.toFile().exists()) {
+      path.toFile().delete();
+    }
+
+    Files.createDirectories(path.getParent());
+    Bpmn.writeModelToFile(Files.createFile(path).toFile(), bpmnModelInstance);
+  }
+
+  @Test
+  public void user_task_with_task_listener_from_process_definition() throws IOException {
+
+    List<TaskListener> listeners =
+        Collections.singletonList(
+            new TaskListener().setEventType("create").setJavaClass("com.lzgabel.Test"));
+
+    UserTaskDefinition processNode =
+        UserTaskDefinition.builder()
+            .nodeName("user task a")
+            .assignee("lizhi")
+            .candidateGroups("lizhi")
+            .taskListeners(listeners)
             .build();
 
     ProcessDefinition processDefinition =
