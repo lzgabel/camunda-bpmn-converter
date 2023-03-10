@@ -42,6 +42,7 @@ import lombok.experimental.SuperBuilder;
 
   // task
   @JsonSubTypes.Type(value = UserTaskDefinition.class, name = "userTask"),
+  @JsonSubTypes.Type(value = ServiceTaskDefinition.class, name = "serviceTask"),
   @JsonSubTypes.Type(value = ScriptTaskDefinition.class, name = "scriptTask"),
   @JsonSubTypes.Type(value = ReceiveTaskDefinition.class, name = "receiveTask"),
   @JsonSubTypes.Type(value = ManualTaskDefinition.class, name = "manualTask"),
@@ -82,6 +83,11 @@ public abstract class BaseDefinition implements Serializable {
 
   public abstract static class BaseDefinitionBuilder<
       C extends BaseDefinition, B extends BaseDefinition.BaseDefinitionBuilder<C, B>> {
+
+    public BaseDefinitionBuilder() {
+      this.listeners = Lists.newArrayList();
+    }
+
     public B nodeNode(String nodeName) {
       this.nodeName = nodeName;
       return self();

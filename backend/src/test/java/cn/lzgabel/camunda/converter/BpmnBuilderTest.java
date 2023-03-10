@@ -337,6 +337,47 @@ public class BpmnBuilderTest {
   }
 
   @Test
+  public void service_task_from_json() throws IOException {
+    String json =
+        "{\n"
+            + "    \"process\":{\n"
+            + "        \"processId\":\"process-id\",\n"
+            + "        \"name\":\"process-name\"\n"
+            + "    },\n"
+            + "    \"processNode\":{\n"
+            + "        \"nodeName\":\"Service Task A\",\n"
+            + "        \"nodeType\":\"serviceTask\",\n"
+            + "        \"topic\":\"test\",\n"
+            + "        \"nextNode\":{\n"
+            + "            \"nodeName\":\"Service Task B\",\n"
+            + "            \"nodeType\":\"serviceTask\",\n"
+            + "            \"javaClass\":\"cn.lzgabel.delegate.TestDelegate\",\n"
+            + "            \"nextNode\":{\n"
+            + "                \"nodeName\":\"Service Task C\",\n"
+            + "                \"nodeType\":\"serviceTask\",\n"
+            + "                \"expression\":\"${boundaryEventDelegate.taskExpired()}\",\n"
+            + "                \"resultVariable\":\"test\",\n"
+            + "                \"nextNode\":{\n"
+            + "                    \"nodeName\":\"Service Task D\",\n"
+            + "                    \"nodeType\":\"serviceTask\",\n"
+            + "                    \"delegateExpression\":\"${beanName}\",\n"
+            + "                    \"nextNode\":null\n"
+            + "                }\n"
+            + "            }\n"
+            + "        }\n"
+            + "    }\n"
+            + "}";
+
+    BpmnModelInstance bpmnModelInstance = BpmnBuilder.build(json);
+    Path path = Paths.get(OUT_PATH + testName.getMethodName() + ".bpmn");
+    if (path.toFile().exists()) {
+      path.toFile().delete();
+    }
+    Files.createDirectories(path.getParent());
+    Bpmn.writeModelToFile(Files.createFile(path).toFile(), bpmnModelInstance);
+  }
+
+  @Test
   public void business_rule_task_from_json() throws IOException {
 
     String json =
@@ -901,6 +942,28 @@ public class BpmnBuilderTest {
       path.toFile().delete();
     }
 
+    Files.createDirectories(path.getParent());
+    Bpmn.writeModelToFile(Files.createFile(path).toFile(), bpmnModelInstance);
+  }
+
+  @Test
+  public void service_task_from_process_definition() throws IOException {
+
+    ServiceTaskDefinition taskDefinition =
+        ServiceTaskDefinition.builder().nodeName("service task a").topic("test").build();
+
+    ProcessDefinition processDefinition =
+        ProcessDefinition.builder()
+            .name("process-name")
+            .processId("process-id")
+            .processNode(taskDefinition)
+            .build();
+
+    BpmnModelInstance bpmnModelInstance = BpmnBuilder.build(processDefinition);
+    Path path = Paths.get(OUT_PATH + testName.getMethodName() + ".bpmn");
+    if (path.toFile().exists()) {
+      path.toFile().delete();
+    }
     Files.createDirectories(path.getParent());
     Bpmn.writeModelToFile(Files.createFile(path).toFile(), bpmnModelInstance);
   }

@@ -2,11 +2,9 @@ package cn.lzgabel.camunda.converter.processing;
 
 import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.BpmnElementType;
-import cn.lzgabel.camunda.converter.bean.listener.ExecutionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
-
 import org.camunda.bpm.model.bpmn.builder.AbstractBaseElementBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;

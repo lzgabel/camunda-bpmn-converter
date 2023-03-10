@@ -24,6 +24,7 @@ public final class BpmnElementProcessors {
     // tasks
     processors.put(BpmnElementType.BUSINESS_RULE_TASK, new BusinessRuleTaskProcessor());
     processors.put(BpmnElementType.SCRIPT_TASK, new ScriptTaskProcessor());
+    processors.put(BpmnElementType.SERVICE_TASK, new ServiceTaskProcessor());
     processors.put(BpmnElementType.USER_TASK, new UserTaskProcessor());
     processors.put(BpmnElementType.RECEIVE_TASK, new ReceiveTaskProcessor());
     processors.put(BpmnElementType.MANUAL_TASK, new ManualTaskProcessor());
