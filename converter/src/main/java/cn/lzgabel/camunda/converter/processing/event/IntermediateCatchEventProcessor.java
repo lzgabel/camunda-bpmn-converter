@@ -6,6 +6,7 @@ import cn.lzgabel.camunda.converter.bean.event.intermediate.TimerIntermediateCat
 import cn.lzgabel.camunda.converter.bean.event.start.EventType;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.IntermediateCatchEventBuilder;
 
 /**
  * 〈功能简述〉<br>
@@ -20,30 +21,21 @@ public class IntermediateCatchEventProcessor
   @Override
   public String onComplete(
       AbstractFlowNodeBuilder flowNodeBuilder, IntermediateCatchEventDefinition flowNode) {
-    String nodeName = flowNode.getNodeName();
     String eventType = flowNode.getEventType();
+    final IntermediateCatchEventBuilder intermediateCatchEventBuilder =
+        (IntermediateCatchEventBuilder) createInstance(flowNodeBuilder, flowNode);
+
     if (EventType.TIMER.isEqual(eventType)) {
       TimerIntermediateCatchEventDefinition timer =
           (TimerIntermediateCatchEventDefinition) flowNode;
       String timerDefinition = timer.getTimerDefinition();
-      return flowNodeBuilder
-          .intermediateCatchEvent()
-          .timerWithDuration(timerDefinition)
-          .getElement()
-          .getId();
+      return intermediateCatchEventBuilder.timerWithDuration(timerDefinition).getElement().getId();
     } else if (EventType.MESSAGE.isEqual(eventType)) {
       MessageIntermediateCatchEventDefinition message =
           (MessageIntermediateCatchEventDefinition) flowNode;
       String messageName = message.getMessageName();
-      return flowNodeBuilder
-          .intermediateCatchEvent()
-          .name(nodeName)
-          .message(messageName)
-          .getElement()
-          .getId();
+      return intermediateCatchEventBuilder.message(messageName).getElement().getId();
     }
-    // create execution listener
-    createExecutionListener(flowNodeBuilder, flowNode);
     return null;
   }
 }

@@ -12,7 +12,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.UserTaskBuilder;
-import org.camunda.bpm.model.bpmn.instance.UserTask;
 
 /**
  * 〈功能简述〉<br>
@@ -30,17 +29,13 @@ public class UserTaskProcessor
   @Override
   public String onComplete(AbstractFlowNodeBuilder flowNodeBuilder, UserTaskDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-
-    String nodeType = flowNode.getNodeType();
-    String nodeName = flowNode.getNodeName();
     String assignee = flowNode.getAssignee();
     String candidateUsers = flowNode.getCandidateUsers();
     String candidateGroups = flowNode.getCandidateGroups();
 
-    UserTask userTask = (UserTask) createInstance(flowNodeBuilder, nodeType);
-    userTask.setName(nodeName);
+    final UserTaskBuilder userTaskBuilder =
+        (UserTaskBuilder) createInstance(flowNodeBuilder, flowNode);
 
-    UserTaskBuilder userTaskBuilder = userTask.builder();
     if (StringUtils.isNotBlank(assignee)) {
       userTaskBuilder.camundaAssignee(assignee);
     }
@@ -56,10 +51,7 @@ public class UserTaskProcessor
     // create task listener
     createTaskListener(userTaskBuilder, flowNode);
 
-    // create execution listener
-    createExecutionListener(userTaskBuilder, flowNode);
-
-    String id = userTask.getId();
+    String id = userTaskBuilder.getElement().getId();
     // 如果当前任务还有后续任务，则遍历创建后续任务
     BaseDefinition nextNode = flowNode.getNextNode();
     if (Objects.nonNull(nextNode)) {

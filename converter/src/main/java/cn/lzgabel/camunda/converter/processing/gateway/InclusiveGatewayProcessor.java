@@ -29,11 +29,9 @@ public class InclusiveGatewayProcessor
   public String onComplete(
       AbstractFlowNodeBuilder flowNodeBuilder, InclusiveGatewayDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-    InclusiveGatewayBuilder inclusiveGatewayBuilder =
-        flowNodeBuilder.inclusiveGateway().name(flowNode.getNodeName());
+    final InclusiveGatewayBuilder inclusiveGatewayBuilder =
+        (InclusiveGatewayBuilder) createInstance(flowNodeBuilder, flowNode);
 
-    // create execution listener
-    createExecutionListener(inclusiveGatewayBuilder, flowNode);
     List<BranchNode> branchNodes = flowNode.getBranchNodes();
     if (CollectionUtils.isEmpty(flowNode.getBranchNodes())
         && Objects.isNull(flowNode.getNextNode())) {

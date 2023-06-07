@@ -23,11 +23,9 @@ public class SubProcessProcessor
   @Override
   public String onComplete(AbstractFlowNodeBuilder flowNodeBuilder, SubProcessDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-    SubProcessBuilder subProcessBuilder = flowNodeBuilder.subProcess();
+    final SubProcessBuilder subProcessBuilder =
+        (SubProcessBuilder) createInstance(flowNodeBuilder, flowNode);
     EmbeddedSubProcessBuilder embeddedSubProcessBuilder = subProcessBuilder.embeddedSubProcess();
-
-    // create execution listener
-    createExecutionListener(subProcessBuilder, flowNode);
 
     // 子流程内部创建开始
     StartEventBuilder startEventBuilder = embeddedSubProcessBuilder.startEvent();

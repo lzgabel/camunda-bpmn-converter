@@ -6,7 +6,7 @@ import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.instance.ManualTask;
+import org.camunda.bpm.model.bpmn.builder.ManualTaskBuilder;
 
 /**
  * 〈功能简述〉<br>
@@ -21,15 +21,9 @@ public class ManualTaskProcessor
   @Override
   public String onComplete(AbstractFlowNodeBuilder flowNodeBuilder, ManualTaskDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-
-    String nodeType = flowNode.getNodeType();
-    String nodeName = flowNode.getNodeName();
-    ManualTask manualTask = (ManualTask) createInstance(flowNodeBuilder, nodeType);
-    String id = manualTask.getId();
-    manualTask.setName(nodeName);
-
-    // create execution listener
-    createExecutionListener(manualTask.builder(), flowNode);
+    final ManualTaskBuilder manualTaskBuilder =
+        (ManualTaskBuilder) createInstance(flowNodeBuilder, flowNode);
+    String id = manualTaskBuilder.getElement().getId();
 
     // 如果当前任务还有后续任务，则遍历创建后续任务
     BaseDefinition nextNode = flowNode.getNextNode();
