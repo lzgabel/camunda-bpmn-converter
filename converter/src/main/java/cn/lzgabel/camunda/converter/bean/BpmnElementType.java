@@ -3,8 +3,6 @@ package cn.lzgabel.camunda.converter.bean;
 import java.util.Arrays;
 import java.util.Optional;
 import org.camunda.bpm.model.bpmn.instance.*;
-import org.camunda.bpm.model.bpmn.instance.Process;
-import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 
 /**
  * 〈功能简述〉<br>
@@ -18,7 +16,6 @@ public enum BpmnElementType {
   UNSPECIFIED(null, null),
 
   // Containers
-  PROCESS("process", Process.class),
   SUB_PROCESS("subProcess", SubProcess.class),
   EVENT_SUB_PROCESS(null, null),
 
@@ -42,7 +39,6 @@ public enum BpmnElementType {
   EVENT_BASED_GATEWAY("eventBasedGateway", EventBasedGateway.class),
 
   // Other
-  SEQUENCE_FLOW("sequenceFlow", SequenceFlow.class),
   MULTI_INSTANCE_BODY(null, null),
   CALL_ACTIVITY("callActivity", CallActivity.class),
   BUSINESS_RULE_TASK("businessRuleTask", BusinessRuleTask.class),
@@ -50,10 +46,10 @@ public enum BpmnElementType {
   SEND_TASK("sendTask", SendTask.class);
 
   private final String elementTypeName;
-  private final Class<? extends ModelElementInstance> elementTypeClass;
+  private final Class<? extends FlowNode> elementTypeClass;
 
   private BpmnElementType(
-      final String elementTypeName, final Class<? extends ModelElementInstance> elementTypeClass) {
+      final String elementTypeName, final Class<? extends FlowNode> elementTypeClass) {
     this.elementTypeName = elementTypeName;
     this.elementTypeClass = elementTypeClass;
   }
@@ -62,7 +58,7 @@ public enum BpmnElementType {
     return Optional.ofNullable(this.elementTypeName);
   }
 
-  public Optional<Class<? extends ModelElementInstance>> getElementTypeClass() {
+  public Optional<Class<? extends FlowNode>> getElementTypeClass() {
     return Optional.ofNullable(this.elementTypeClass);
   }
 

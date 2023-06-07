@@ -17,10 +17,7 @@ public class EndEventProcessor
 
   @Override
   public String onComplete(AbstractFlowNodeBuilder builder, EndEventDefinition flowNode) {
-    EndEventBuilder endEventBuilder = builder.endEvent();
-
-    // create execution listener
-    createExecutionListener(endEventBuilder, flowNode);
+    final EndEventBuilder endEventBuilder = (EndEventBuilder) createInstance(builder, flowNode);
     return endEventBuilder.getElement().getId();
   }
 }

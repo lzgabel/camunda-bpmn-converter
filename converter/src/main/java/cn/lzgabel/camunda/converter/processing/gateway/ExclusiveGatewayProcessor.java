@@ -29,11 +29,10 @@ public class ExclusiveGatewayProcessor
   public String onComplete(
       AbstractFlowNodeBuilder flowNodeBuilder, ExclusiveGatewayDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-    ExclusiveGatewayBuilder exclusiveGatewayBuilder =
-        flowNodeBuilder.exclusiveGateway().name(flowNode.getNodeName());
 
-    // create execution listener
-    createExecutionListener(exclusiveGatewayBuilder, flowNode);
+    final ExclusiveGatewayBuilder exclusiveGatewayBuilder =
+        (ExclusiveGatewayBuilder) createInstance(flowNodeBuilder, flowNode);
+
     List<BranchNode> branchNodes = flowNode.getBranchNodes();
     if (CollectionUtils.isEmpty(flowNode.getBranchNodes())
         && Objects.isNull(flowNode.getNextNode())) {

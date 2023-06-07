@@ -1,6 +1,7 @@
 package cn.lzgabel.camunda.converter.bean.gateway;
 
 import cn.lzgabel.camunda.converter.bean.BaseDefinition;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -17,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class BranchNode {
 
+  @JsonProperty("isDefault")
   private boolean isDefault;
 
   private String nodeName;

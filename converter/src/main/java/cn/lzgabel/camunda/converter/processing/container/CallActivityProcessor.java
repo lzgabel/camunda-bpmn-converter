@@ -21,12 +21,9 @@ public class CallActivityProcessor
   @Override
   public String onComplete(AbstractFlowNodeBuilder flowNodeBuilder, CallActivityDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-    CallActivityBuilder callActivityBuilder = flowNodeBuilder.callActivity();
+    final CallActivityBuilder callActivityBuilder =
+        (CallActivityBuilder) createInstance(flowNodeBuilder, flowNode);
 
-    // create execution listener
-    createExecutionListener(callActivityBuilder, flowNode);
-
-    callActivityBuilder.getElement().setName(flowNode.getNodeName());
     callActivityBuilder.calledElement(flowNode.getCalledElement());
     String id = callActivityBuilder.getElement().getId();
     BaseDefinition childNode = flowNode.getNextNode();

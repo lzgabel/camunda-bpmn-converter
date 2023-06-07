@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractBaseElementBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+import org.camunda.bpm.model.bpmn.instance.FlowNode;
 
 /**
  * 〈功能简述〉<br>
@@ -85,25 +85,32 @@ public interface BpmnElementProcessor<
    * 创建指定类型实例
    *
    * @param flowNodeBuilder builder
-   * @param nodeType 节点类型
-   * @return 指定类型实例对象
+   * @param flowNode 节点
+   * @return 指定类型实例 builder
    */
   @SuppressWarnings("unchecked")
-  default Object createInstance(AbstractFlowNodeBuilder<?, ?> flowNodeBuilder, String nodeType) {
+  default AbstractFlowNodeBuilder createInstance(
+      AbstractFlowNodeBuilder<?, ?> flowNodeBuilder, BaseDefinition flowNode) {
     // 自动生成id
     Method createTarget = getDeclaredMethod(flowNodeBuilder, "createTarget", Class.class);
     // 手动传入id
     // Method createTarget = getDeclaredMethod(abstractFlowNodeBuilder, "createTarget", Class.class,
     // String.class);
-
     try {
+      final var nodeType = flowNode.getNodeType();
       createTarget.setAccessible(true);
-      Class<? extends ModelElementInstance> clazz =
+      Class<? extends FlowNode> clazz =
           BpmnElementType.bpmnElementTypeFor(nodeType)
               .getElementTypeClass()
               .orElseThrow(
                   () -> new RuntimeException("Unsupported BPMN element of type " + nodeType));
-      return createTarget.invoke(flowNodeBuilder, clazz);
+
+      final var instance = clazz.cast(createTarget.invoke(flowNodeBuilder, clazz));
+      instance.setName(flowNode.getNodeName());
+      final var builder = instance.builder();
+      // 创建监听器
+      createExecutionListener(builder, flowNode);
+      return builder;
     } catch (IllegalAccessException | InvocationTargetException e) {
       e.printStackTrace();
       return null;

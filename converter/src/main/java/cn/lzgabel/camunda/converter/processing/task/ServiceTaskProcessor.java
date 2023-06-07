@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ServiceTaskBuilder;
-import org.camunda.bpm.model.bpmn.instance.ServiceTask;
 
 /**
  * 〈功能简述〉<br>
@@ -24,14 +23,8 @@ public class ServiceTaskProcessor
   @Override
   public String onComplete(AbstractFlowNodeBuilder flowNodeBuilder, ServiceTaskDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-
-    String nodeType = flowNode.getNodeType();
-    String nodeName = flowNode.getNodeName();
-
-    ServiceTask serviceTask = (ServiceTask) createInstance(flowNodeBuilder, nodeType);
-    serviceTask.setName(nodeName);
-
-    ServiceTaskBuilder serviceTaskBuilder = serviceTask.builder();
+    final ServiceTaskBuilder serviceTaskBuilder =
+        (ServiceTaskBuilder) createInstance(flowNodeBuilder, flowNode);
 
     // set implementation
     Optional.ofNullable(flowNode.getTopic())
@@ -56,10 +49,7 @@ public class ServiceTaskProcessor
         .filter(StringUtils::isNotBlank)
         .ifPresent(serviceTaskBuilder::camundaClass);
 
-    // create execution listener
-    createExecutionListener(serviceTaskBuilder, flowNode);
-
-    String id = serviceTask.getId();
+    String id = serviceTaskBuilder.getElement().getId();
     // 如果当前任务还有后续任务，则遍历创建后续任务
     BaseDefinition nextNode = flowNode.getNextNode();
     if (Objects.nonNull(nextNode)) {
