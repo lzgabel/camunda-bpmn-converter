@@ -164,5 +164,5 @@ Convert json to bpmn for Camunda Platform.
 ```
 ### 3. 示例
 * 启动服务
-    * ``mvn spring-boot:run``
+    * ``cd example && mvn clean package -DskipTests && mvn spring-boot:run``
     * http://localhost:8080
